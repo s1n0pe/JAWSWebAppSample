@@ -1,0 +1,131 @@
+﻿@page "/VMix_Controller"
+@attribute [Authorize]
+
+<PageTitle>vMix操作</PageTitle>
+
+<HeadContent>
+	<meta name="robots" content="noindex">
+</HeadContent>
+
+<h1>vMix操作</h1>
+
+<h3>vMix_Controller</h3>
+
+<hr />
+
+<p>
+    <input size=40 type="text" @bind="inputTextScene" />　テキストシーン名入力<br />
+    <input size=40 type="text" @bind="mainTitle" />　メインタイトル入力<br />
+    <button class="btn btn-primary" @onclick="SetMainTitle">メインタイトルセット</button><br />
+    @responseMainTitle
+</p>
+
+<p>
+    <input size=40 type="text" @bind="inputTextScene" />　テキストシーン名入力<br />
+    <input size=40 type="text" @bind="subTitle" />　サブタイトル入力<br />
+    <button class="btn btn-primary" @onclick="SetSubTitle">サブタイトルセット</button><br />
+    @responseSubTitle
+</p>
+
+<hr />
+
+<p>
+    <input size=40 type="text" @bind="inputTextScene" />　テキストシーン名入力<br />
+    <input size=40 type="text" @bind="names" />　キャスト名入力<br />
+    <button class="btn btn-primary" @onclick="SetNames">キャスト名セット</button><br />
+    @responseName
+</p>
+
+<hr />
+
+<p>
+    <input size=40 type="text" @bind="inputTextScene" />　テキストシーン名入力<br />
+    <input size=40 type="text" @bind="estTime" />　ESTタイム入力<br />
+    <button class="btn btn-primary" @onclick="SetEstTime">ESTタイムセット</button><br />
+    @responseEst
+</p>
+
+<hr />
+
+<hr />
+
+<p>
+    <input size=40 type="text" @bind="inputPreviewScene" />　プレビューシーン名入力<br />
+    <button class="btn btn-primary" @onclick="SetPreviewInput">プレビューシーンセット</button><br />
+    @responsePreviewInput
+</p>
+
+<hr />
+
+<p>
+    プレビューが正しいことを確認して画面遷移（フェード）<br />
+    <button class="btn btn-primary" @onclick="FadeClick" disabled="@isFadeDisabled">フェード</button>
+    <button class="btn btn-warning" @onclick="FadeTransition" disabled="@isFadeConfirmDisabled">よろしいですか？</button><br />
+    @responseFade
+</p>
+
+<hr />
+
+<p>
+    プレビューが正しいことを確認して画面遷移（カット）<br />
+    <button class="btn btn-primary" @onclick="CutClick" disabled="@isCutDisabled">カット</button>
+    <button class="btn btn-warning" @onclick="CutTransition" disabled="@isCutConfirmDisabled">よろしいですか？</button><br />
+    @responseCut
+</p>
+
+
+<hr />
+
+<p>
+    プレビューが正しいことを確認して画面遷移（マージ）<br />
+    <button class="btn btn-primary" @onclick="MergeClick" disabled="@isMergeDisabled">マージ</button>
+    <button class="btn btn-warning" @onclick="MergeTransition" disabled="@isMergeConfirmDisabled">よろしいですか？</button><br />
+    @responseMerge
+</p>
+
+<hr />
+
+<p>
+    プレビューが正しいことを確認して画面遷移（スティンガー1）<br />
+    <button class="btn btn-primary" @onclick="Stinger1Click" disabled="@isStinger1Disabled">スティンガー1</button>
+    <button class="btn btn-warning" @onclick="Stinger1Transition" disabled="@isStinger1ConfirmDisabled">よろしいですか？</button><br />
+    @responseStinger1
+</p>
+
+<hr />
+
+<p>
+    プレビューが正しいことを確認して画面遷移（スティンガー2）<br />
+    <button class="btn btn-primary" @onclick="Stinger2Click" disabled="@isStinger2Disabled">スティンガー2</button>
+    <button class="btn btn-warning" @onclick="Stinger2Transition" disabled="@isStinger2ConfirmDisabled">よろしいですか？</button><br />
+    @responseStinger2
+</p>
+
+<hr />
+
+<hr />
+
+<p>
+    <div class="timer">
+        <button class="btn btn-outline-success" @onclick="@(e => TimerStart())" disabled="@isStartDisabled"><img src="images/play.png" alt="▶" width=64 height=64/></button>
+        <button class="btn btn-outline-warning" @onclick="@(e => TimerPause())" disabled="@isPauseDisabled"><img src="images/pause.png" alt="Ⅱ" width=64 height=64/></button>
+        <button class="btn btn-outline-danger" @onclick="@(e => TimerStop())" disabled="@isStopDisabled"><img src="images/stop.png" alt="■" width=64 height=64/></button><br />
+    </div>
+    @responseTimer
+</p>
+
+<p>
+    <input type="text" @bind="timerChange" />　タイマーを修正（例：0:12:34）<br />
+    <button class="btn btn-primary" @onclick="ChangeClick" disabled="@isChangeDisabled">タイマーを修正</button>
+    <button class="btn btn-warning" @onclick="TimerChangeConfirm" disabled="@isChangeConfirmDisabled">よろしいですか？</button>
+    <button class="btn btn-danger" @onclick="@(e => TimerChangeExecute())" disabled="@isChangeExecuteDisabled">本当に？</button><br />
+    @responseTimerChange
+</p>
+
+<p>
+    <button class="btn btn-primary" @onclick="ResetClick" disabled="@isResetDisabled">タイマーをリセット</button>
+    <button class="btn btn-warning" @onclick="TimerResetConfirm" disabled="@isResetConfirmDisabled">よろしいですか？</button>
+    <button class="btn btn-danger" @onclick="@(e => TimerResetExecute())" disabled="@isResetExecuteDisabled">本当に？</button><br />
+    @responseTimerReset
+</p>
+

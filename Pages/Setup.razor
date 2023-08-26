@@ -1,0 +1,183 @@
+﻿@page "/setup/{pageNum}"
+@using JAWSWebApp.Store
+@using System.Web
+@using System.Text.RegularExpressions;
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@*ログインしないと見れないようにするには下記を追加*@
+@attribute [Authorize]
+
+<PageTitle>セットアップ画面</PageTitle>
+
+<HeadContent>
+	<meta name="robots" content="noindex">
+</HeadContent>
+
+@if (SheetDataState?.Value?.SheetData?.Count <1 || isLoading)
+{
+    <p><em>読込中...</em></p>
+    <p><em>しばらく経っても読み込まれなかったらホーム画面に戻ってください</em></p>
+}
+else
+{
+    <div>
+        <h1>@SheetDataState.Value.SheetData[rowIndex].Title 準備中</h1>
+        @if (!String.IsNullOrEmpty(@SheetDataState.Value.SheetData[rowIndex]?.PrevTitle))
+        {
+            <p>
+                <NavLink class="nav-link" href=@prevpage>
+                    <span class="oi oi-media-step-backward" aria-hidden="true"></span>　@SheetDataState.Value.SheetData[rowIndex].PrevTitle 本番中に戻る
+                </NavLink>
+            </p>
+        
+        }
+        <hr />
+
+        <h2>待機画面中</h2>
+        <br />
+
+        <h3>10分前（@setupStartTime）になったら</h3>
+        <br />
+        @if (rowIndex == 0)
+        {
+            <p>
+                スタッフ待機VCでみんなで打ち合わせ<br />
+            </p>
+        }
+        else
+        {
+            <p>
+                @SheetDataState.Value.SheetData[rowIndex].DiscordIds<br />
+                開始時刻が近づいて参りました。控室VCにお入りください。<br />
+                <br />
+                こちらを貼って呼び出しを行う<br />
+                <br />
+            </p>
+
+            @if (!String.IsNullOrEmpty(@SheetDataState.Value.SheetData[rowIndex].VMixCallInfo))
+            {
+                <p>
+                    <h3>vMix Callを配布</h3>
+                    <br />
+                    vMix Callのリンクを渡す<br />
+                    @((MarkupString)Regex.Replace(
+                        HttpUtility.HtmlEncode(@SheetDataState.Value.SheetData[rowIndex].VMixCallInfo), "\r?\n|\r", "<br />"))<br />
+                    <br />
+                    vMix Callを使う方に下記をアナウンスする<br />
+                    ・ユーザー名を求められるので、わかりやすい名前を入れてログインしてください（かな漢字OKです）<br />
+                    ・カメラを使わない場合、OBSの仮想カメラを指定する、カメラに物理的に映像が映らないようにする等を行ってください<br />
+                    ・左上のカメラプレビューが不要な場合は、真ん中のマイクから2つ右側の「Disable Camera Preview」を押してカメラプレビューをOFFにしてください<br />
+                    <br />
+                    vMixの画面（待機画面）が正しく映っているかを確認<br />
+                    おかしくなっていたら技術班に教えてください<br />
+                    <br />
+                </p>
+            }
+
+            <p>
+                <h3>OBSの配信開始を押してもらう</h3>
+                タイマースタート、ストップタイミングの最終確認<br />
+                打ち合わせが必要なことはここで話しておくこと<br />
+            </p>
+        }
+
+        <p>
+            配信情報をセット<br />
+            <input size=40 type="text" @bind=inputGameTitle />　タイトル：@SheetDataState.Value.SheetData[rowIndex].Title<br />
+            <input size=40 type="text" @bind=inputGameID />　配信カテゴリー：@SheetDataState.Value.SheetData[rowIndex].Category<br />
+            <button class="btn btn-primary" @onclick="SetChannelInformation">タイトル＆配信カテゴリーをセット</button><br />
+            @responseSetChannelInformation
+        </p>
+
+        <p>
+            <input size=40 type="text" @bind=inputTags />　タグ：@SheetDataState.Value.SheetData[rowIndex].Tags<br />
+            <button class="btn btn-primary" @onclick="SetTags">タグをセット</button><br />
+            @responseSetTags
+        </p>
+
+        <hr />
+        
+        @*<h2>セットアップ中</h2>
+        <br />*@
+
+        <p>
+            @SheetDataState.Value.SheetData[rowIndex].Title をプレビューにセット<br />
+            <br />
+            <img src="@imageButton" class="btn btn-image" @onclick="@(e => SetPreviewInput())" alt="@SheetDataState.Value.SheetData[rowIndex].Title" width=300 height=180 /><br />
+            @responsePreviewInput
+        </p>
+
+        プレビューセット後 @castNames に、下記を伝えてください<br />
+        ・「本番VCにお願いします」と言ったら、本番VCに移動してください<br />
+        ・本番VCに移動したらすぐに喋り始めてください<br />
+        ・本番が終わったらこちらから控室VCにピックアップしますので、喋らずにそのままお待ち下さい<br />
+        <br />
+        @*五月鮫ではvMixのレイヤーや音量の事前確認は行わない方針で行くためコメントアウト 必要になったら復活させる*@
+        @*<hr />
+        プレビュー画面を表示したら確認（マニュアル（右上のリンク）を参照してください）<br />
+        <br />
+        <p>
+            <input type="checkbox" checked="@isLayerOk" @onchange="@(e => updateCell("is_layer_ok", (rowIndex+2).ToString(), e.Value.ToString().ToLower()))" />　レイヤーは正しく設定されていますか？<br />
+            プレビュー右上の歯車をクリックして確認
+            <div class="kakomi-hosoku1">
+                @((MarkupString)Regex.Replace(
+                    HttpUtility.HtmlEncode(@SheetDataState.Value.SheetData[rowIndex].LayerSettings), "\r?\n|\r", "<br />"))
+            </div>
+            <input type="checkbox" checked="@isSrtOk" @onchange="@(e => updateCell("is_srt_ok", (rowIndex+2).ToString(), e.Value.ToString().ToLower()))" />　SRTの音声は正しく聞こえていますか？<br />
+            各SRTのSボタンを押して確認、確認後はSボタンを外す
+            <div class="kakomi-hosoku1">
+                @((MarkupString)Regex.Replace(
+                    HttpUtility.HtmlEncode(@SheetDataState.Value.SheetData[rowIndex].SrtSettings), "\r?\n|\r", "<br />"))
+            </div>
+            <input type="checkbox" checked="@isVoiceOk" @onchange="@(e => updateCell("is_voice_ok", (rowIndex+2).ToString(), e.Value.ToString().ToLower()))" />　Discordの音声は正しく聞こえていますか？<br />
+            <div class="kakomi-hosoku1">
+                @((MarkupString)Regex.Replace(
+                    HttpUtility.HtmlEncode(@SheetDataState.Value.SheetData[rowIndex].VoiceSettings), "\r?\n|\r", "<br />"))
+            </div>
+            <br />
+        </p>*@
+
+        <div>
+            <h3>@startTime</h3>
+            <br />
+            <p>
+                拡張機能：おすすめチャンネルを @SheetDataState.Value.SheetData[rowIndex].Title 用にセット<br />
+                <input size=40 type="text" @bind=featuredChannels/>　channel1,channel2<br />
+                <button class="btn btn-primary" @onclick="SetFeaturedChannels">おすすめチャンネルをセット</button>　←反応遅いのでゆっくり待ってください<br />
+                @responseSetFeaturedChannels
+            </p>
+
+            <br />
+
+            <p>
+                画面遷移（スティンガー1）<br />
+                <button class="btn btn-primary" @onclick="Stinger1Click" disabled="@isStinger1Disabled">スティンガー1</button>
+                <button class="btn btn-warning" @onclick="Stinger1Transition" disabled="@isStinger1ConfirmDisabled">よろしいですか？</button><br />
+            </p>
+
+            よろしいですか？を押したら、 @castNames に「本番VCに入ってください」と伝えてください<br />
+            <br />
+        </div>
+
+        <hr />
+
+        <div class="right">
+            <NavLink class="nav-link" href=@nextpage>
+                @SheetDataState.Value.SheetData[rowIndex].Title 本番中に進む　<span class="oi oi-media-step-forward" aria-hidden="true"></span>
+            </NavLink>
+        </div>
+
+        <hr />
+
+        <p>
+        vMixの表示テキストを変更（必要なければスキップしてください）<br />
+        <br />
+        <input size=40 type="text" @bind="mainTitle" />　タイトル<br />
+        <input size=40 type="text" @bind="subTitle" />　サブタイトル<br />
+        <input size=40 type="text" @bind="names" />　キャスト名<br />
+        <input size=40 type="text" @bind="estTime" />　予定タイム<br />
+        <button class="btn btn-primary" @onclick="@(e => ChangeDisplayText())">テキストを変更</button><br />
+        @responseChangeDisplayText
+        </p>
+    </div>
+    
+}

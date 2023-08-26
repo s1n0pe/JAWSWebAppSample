@@ -1,0 +1,10 @@
+﻿.right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.timer {
+    display: flex;
+    justify-content: space-around;
+}
+

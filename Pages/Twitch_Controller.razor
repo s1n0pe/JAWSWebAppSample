@@ -1,0 +1,87 @@
+﻿@page "/Twitch_Controller"
+@attribute [Authorize]
+
+<PageTitle>Twitch操作</PageTitle>
+
+<HeadContent>
+	<meta name="robots" content="noindex">
+</HeadContent>
+
+<h1>Twitch操作</h1>
+
+
+<h3>Twitch_Controller</h3>
+
+<hr />
+
+<p>
+    @* 必要な時は disabled を外して実行 *@
+    <button class="btn btn-primary" disabled @onclick="GetUserID">ユーザーID取得</button><br />
+    @* レイアウトが壊れないように長い単語を途中で改行する *@
+    <div class="text-break">
+        @userID
+    </div>
+</p>
+
+<p>
+    @* 必要な時は disabled を外して実行 *@
+    <button class="btn btn-primary" disabled @onclick="GetOAhtuToken">OAuthトークン取得</button><br />
+    @OAuthToken
+</p>
+
+<p>
+    <button class="btn btn-primary" @onclick="RefreshOAhtuToken">OAuthトークン更新</button><br />
+    @refreshToken
+</p>
+
+<hr />
+
+<p>
+    ゲームIDを検索<br />
+    <input size=40 type="text" @bind="inputGameTitle" />　ゲームタイトル入力<br />
+    <button class="btn btn-primary" @onclick="GetGameID">ゲームID取得</button><br />
+    @* レイアウトが壊れないように長い単語を途中で改行する *@
+    <div class="text-break">
+        @outputGameID
+    </div>
+</p>
+
+<hr />
+
+<p>
+    <button class="btn btn-primary" @onclick="GetChannelInformation">チャンネル情報取得</button><br />
+    @* レイアウトが壊れないように長い単語を途中で改行する *@
+    <div class="text-break">
+        @channelInformation
+    </div>
+</p>
+
+<p>
+    チャンネル情報をセット<br />
+    <input size=40 type="text" @bind="inputTitle" />　配信タイトル入力<br />
+    <input size=40 type="text" @bind="inputGameID" />　ゲームID入力<br />
+    <button class="btn btn-primary" @onclick="SetChannelInformation">タイトル＆カテゴリーをセット</button><br />
+    @responseChannelInformation
+</p>
+
+<p>
+    タグをセット<br />
+    <input size=40 type="text" @bind="inputTags" />　タグ入力<br />
+    <button class="btn btn-primary" @onclick="SetTags">タグをセット</button><br />
+    @responseSetTags
+</p>
+
+<hr />
+
+<p>
+    Featured Channelsをセット<br />
+    <input size=40 type="text" @bind="inputTwitchIDs" />　Twitch ID入力<br />
+    <button class="btn btn-primary" @onclick="SetFeaturedChannels">Featured Channelsをセット</button><br />
+    @responseSetFeaturedChannels
+</p>
+
+<hr />
+
+
+
+

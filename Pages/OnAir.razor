@@ -1,0 +1,101 @@
+﻿@page "/onair/{pageNum}"
+@using JAWSWebApp.Store
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@*ログインしないと見れないようにするには下記を追加*@
+@attribute [Authorize]
+
+<PageTitle>本番中画面</PageTitle>
+
+<HeadContent>
+	<meta name="robots" content="noindex">
+</HeadContent>
+
+@if (SheetDataState?.Value?.SheetData?.Count < 1)
+{
+    <p><em>読込中...</em></p>
+    <p><em>しばらく経っても読み込まれなかったらホーム画面に戻ってください</em></p>
+}
+else
+{
+    <div>
+        <h1>@SheetDataState.Value.SheetData[rowIndex].Title 本番中</h1>
+
+        <p>
+            <NavLink class="nav-link" href=@prevpage>
+                    <span class="oi oi-media-step-backward" aria-hidden="true"></span>　@SheetDataState.Value.SheetData[rowIndex].Title 準備中に戻る
+            </NavLink>
+        </p>
+
+        <hr />
+
+        <a href="https://docs.google.com/spreadsheets/d/xxxxxxxx/edit#gid=xxx&range=A1" target="_blank">タイマースタート・ストップタイミング</a>のスタイルシートを確認
+
+        <hr />
+
+        <p>
+            <div class="timer">
+                <button class="btn btn-outline-success" @onclick="@(e => TimerStart())" disabled="@isStartDisabled"><img src="images/play.png" alt="▶" width=64 height=64 /></button>
+                <button class="btn btn-outline-warning" @onclick="@(e => TimerPause())" disabled="@isPauseDisabled"><img src="images/pause.png" alt="Ⅱ" width=64 height=64 /></button>
+                <button class="btn btn-outline-danger" @onclick="@(e => TimerStop())" disabled="@isStopDisabled"><img src="images/stop.png" alt="■" width=64 height=64 /></button><br />
+            </div>
+            @responseTimer
+        </p>
+
+        <p>
+            <input type="text" @bind="inputTimer" />　タイマーを修正（例：0:12:34）<br />
+            <button class="btn btn-primary" @onclick="ChangeClick" disabled="@isChangeDisabled">タイマーを修正</button>
+            <button class="btn btn-warning" @onclick="TimerChangeConfirm" disabled="@isChangeConfirmDisabled">よろしいですか？</button>
+            <button class="btn btn-danger" @onclick="@(e => TimerChangeExecute())" disabled="@isChangeExecuteDisabled">本当に？</button><br />
+            @responseTimerChange
+        </p>
+
+        <p>
+            <button class="btn btn-primary" @onclick="ResetClick" disabled="@isResetDisabled">タイマーをリセット</button>
+            <button class="btn btn-warning" @onclick="TimerResetConfirm" disabled="@isResetConfirmDisabled">よろしいですか？</button>
+            <button class="btn btn-danger" @onclick="@(e => TimerResetExecute())" disabled="@isResetExecuteDisabled">本当に？</button><br />
+            @responseTimerReset
+        </p>
+
+        <hr />
+
+        <p>
+            <h3>タイマーストップし、そろそろ締めのタイミングになったら</h3>
+            <br />
+            待機画面をプレビューにセット<br />
+            <br />
+            <img src="images/00セットアップ.png" alt="Waiting" class="btn btn-image" @onclick="@(e => SetPreviewInput())" width=300 height=180 /><br />
+            @responsePreviewInput
+        </p>
+
+        <p>
+            <h3>@SheetDataState.Value.SheetData[rowIndex].Title 終了</h3>
+            <br />
+            プレビューが待機画面になっているか確認して画面遷移（スティンガー1）<br />
+            <button class="btn btn-primary" @onclick="Stinger1Click" disabled="@isStinger1Disabled">スティンガー1</button>
+            <button class="btn btn-warning" @onclick="Stinger1Transition" disabled="@isStinger1ConfirmDisabled">よろしいですか？</button><br />
+        </p>
+
+        <p>
+            タイトル一覧をセット<br />
+            行番号　<input size=10 type="number" @bind=nextTitleRowNo />
+            <button class="btn btn-primary" @onclick="TitleListRowSet">セット</button><br />
+            @responseTitleList<br />
+        </p>
+
+        タイトル一覧をセットしたら、 本番VCにいる走者・解説の方を右クリックして「移動先を指定」→「控室VC」を押して控室VCに送ってください<br />
+        控室VCに戻したら、走者・解説に配信と、使っていた場合はvMix Callを切ってもらってください
+        <br />
+
+        <hr />
+
+        
+        @if (!String.IsNullOrEmpty(@SheetDataState.Value.SheetData[rowIndex]?.NextTitle))
+        {
+            <div class="right">
+                <NavLink class="nav-link" href=@nextpage>
+                    @SheetDataState.Value.SheetData[rowIndex].NextTitle 準備中に進む　<span class="oi oi-media-step-forward" aria-hidden="true"></span>
+                </NavLink>
+            </div>
+        }
+    </div>
+}

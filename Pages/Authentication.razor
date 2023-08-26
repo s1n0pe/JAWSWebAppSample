@@ -1,0 +1,10 @@
+﻿@*下記リポジトリを参考にCognito Hosted UIを使った認証機能を実装した*@
+@*一部工夫しないと動かないところがあったので変更した。詳細はwwwroot/AuthenticationService.js内のコメントで記載*@
+@*https://github.com/sravimohan/blazor-webassembly-cognito-hosted-ui-sample/blob/main/.cloudformation/cognito-stack.yml*@
+@page "/authentication/{action}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+<RemoteAuthenticatorView Action="@Action" />
+
+@code {
+    [Parameter] public string? Action { get; set; }
+}

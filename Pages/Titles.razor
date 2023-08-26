@@ -1,0 +1,27 @@
+﻿@page "/titles"
+@using JAWSWebApp.Store
+@using System.Web
+@using System.Text.RegularExpressions;
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@*ログインしないと見れないようにするには下記を追加*@
+@attribute [Authorize]
+
+@if (SheetDataState?.Value?.SheetData?.Count <1)
+{
+    <p><em>読込中...</em></p>
+    <p><em>しばらく経っても読み込まれなかったらホーム画面に戻ってください</em></p>
+}
+else
+{
+    <div>
+        @foreach (var (item, index) in SheetDataState?.Value?.SheetData.Select((item, index)=>(item, index)))
+        {
+            <div class="nav-item px-3">
+                @item.Date @item.StartTime 開始
+                <NavLink class="nav-link" href=@($"setup/{index+1}")>
+                    @item.Title
+                </NavLink>
+            </div>
+        }
+    </div>
+}
